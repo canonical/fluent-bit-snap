@@ -55,20 +55,19 @@ apps:
 
 
 parts:
-  dependencies:
-    plugin: nil
-    stage-packages:
-      - util-linux
-
   build:
     plugin: dump
     source: https://github.com/fluent/fluent-bit.git
     source-type: git
     source-commit: e28f4479958918faa41615158a744d29b0f893fa
+    build-packages:
+      - cmake
+      - make
+      - util-linux
     override-build: |
       ls -la 
       cd build
-      cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+      cmake ..
       make
       bin/fluent-bit -i cpu -o stdout -f 1
 
