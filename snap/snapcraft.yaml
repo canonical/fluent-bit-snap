@@ -61,9 +61,13 @@ parts:
     source-type: git
     source-commit: e28f4479958918faa41615158a744d29b0f893fa
     build-packages:
+      - bison
       - cmake
+      - flex
       - make
+      - openssl
       - util-linux
+      - valgrind
     override-build: |
       ls -la 
       cd build
