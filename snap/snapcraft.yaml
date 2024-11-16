@@ -78,7 +78,7 @@ parts:
       - libevent-dev
       - libsasl2-dev
       - libngtcp2-dev
-      - libngtcp2-crypto-quictls-dev
+      - libngtcp2-crypto-gnutls-dev
       - libcunit1-dev
       - libxml2-dev
       - libjemalloc-dev
