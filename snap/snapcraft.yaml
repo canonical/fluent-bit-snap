@@ -41,7 +41,7 @@ apps:
   daemon:
     daemon: simple
     install-mode: disable
-    command: opt/fluent-bit/start.sh
+    command: bin/fluent-bit -i cpu -o stdout -f 1
     restart-condition: always
     restart-delay: 1s
     plugs:
@@ -72,18 +72,21 @@ parts:
       - pkg-config
       - libedit-dev
       - libev-dev
-      - libcares-dev
       - libnghttp3-dev
       - libsystemd-dev
       - libjansson-dev
       - libevent-dev
+      - libsasl2-dev
+      - libngtcp2-dev
+      - libngtcp2-crypto-quictls-dev
+      - libcunit1-dev
       - libxml2-dev
       - libjemalloc-dev
       - libssl-dev
+      - postgresql
     override-build: |
       ls -la 
       cd build
       cmake ..
       make
-      bin/fluent-bit -i cpu -o stdout -f 1
-
+      ls -la 
