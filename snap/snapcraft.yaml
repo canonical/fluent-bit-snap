@@ -68,6 +68,18 @@ parts:
       - openssl
       - util-linux
       - valgrind
+      - libyaml-dev
+      - pkg-config
+      - libedit-dev
+      - libev-dev
+      - libcares-dev
+      - libnghttp3-dev
+      - libsystemd-dev
+      - libjansson-dev
+      - libevent-dev
+      - libxml2-dev
+      - libjemalloc-dev
+      - libssl-dev
     override-build: |
       ls -la 
       cd build
