@@ -47,22 +47,23 @@ apps:
       - system-observe
 
 parts:
-  ngtcp2:
+  libressl:
     plugin: autotools
-    source: https://github.com/ngtcp2/ngtcp2/releases/download/v1.8.1/ngtcp2-1.8.1.tar.gz
+    source: https://github.com/libressl/portable/releases/download/v4.0.0/libressl-4.0.0.tar.gz
     build-packages:
       - build-essential
-      - autoconf
+      - autotools-dev
+      - automake
       - libtool
-      - pkg-config
     override-build: |
-      autoreconf -i
+      set -eux
+      ls -la
       ./configure --prefix="${SNAPCRAFT_PART_INSTALL}"
       make -j$(nproc)
       make install
     stage:
-      - lib/libngtcp2*.so
-      - include/ngtcp2/*.h
+      - lib/
+      - include/
 
   nghttp3:
     plugin: autotools
@@ -74,12 +75,32 @@ parts:
       - pkg-config
     override-build: |
       autoreconf -i
-      ./configure --prefix="${SNAPCRAFT_PART_INSTALL}"
+      ./configure --prefix="${SNAPCRAFT_PART_INSTALL}" --enable-lib-only
       make -j$(nproc)
       make install
     stage:
-      - lib/libnghttp3*.so
-      - include/nghttp3/*.h
+      - lib/
+      - include/
+
+  ngtcp2:
+    plugin: autotools
+    source: https://github.com/ngtcp2/ngtcp2/releases/download/v1.8.1/ngtcp2-1.8.1.tar.gz
+    after:
+      - libressl
+      - nghttp3
+    build-packages:
+      - build-essential
+      - autoconf
+      - libtool
+      - pkg-config
+    override-build: |
+      autoreconf -i
+      PKG_CONFIG_PATH="${SNAPCRAFT_STAGE}/lib/pkgconfig" ./configure --prefix="${SNAPCRAFT_PART_INSTALL}" --enable-lib-only
+      make -j$(nproc)
+      make install
+    stage:
+      - lib/
+      - include/
 
   build:
     plugin: dump
@@ -87,6 +108,7 @@ parts:
     source-type: git
     source-commit: 50512ed56aad32f07d98a723cb217f0251bb52e8
     after:
+      - libressl
       - nghttp3
       - ngtcp2
     build-packages:
@@ -105,12 +127,11 @@ parts:
       - libjansson-dev
       - libevent-dev
       - libsasl2-dev
-      - libngtcp2-crypto-gnutls-dev
       - libcunit1-dev
       - libxml2-dev
       - libjemalloc-dev
-      - libssl-dev
       - libpq-dev
+      - libssl-dev
     stage-packages:
       - libyaml-0-2
       - libedit2
@@ -120,20 +141,29 @@ parts:
       - libjansson4
       - libevent-2.1-7
       - libsasl2-2
-      - libngtcp2-crypto-gnutls0
       - libcunit1
       - libxml2
       - libjemalloc2
-      - libssl3
       - libpq5
+      - libssl3
     override-build: |
-      ls -la 
+      set -eux
+      echo -e "\n\n\n-------------------------------------\n\n\n"
       cd build
+      echo -e "\n\n\n-------------------------------------\n\n\n"
       cmake -DCMAKE_INSTALL_PREFIX="${SNAPCRAFT_PART_INSTALL}" \
         -DCMAKE_PREFIX_PATH="${SNAPCRAFT_STAGE}" \
         -DCMAKE_LIBRARY_PATH="${SNAPCRAFT_STAGE}/lib" \
         -DCMAKE_INCLUDE_PATH="${SNAPCRAFT_STAGE}/include" \
-        -DENABLE_CARES=ON \
         ..
+      echo -e "\n\n\n-------------------------------------\n\n\n"
       make -j$(nproc)
+      echo -e "\n\n\n-------------------------------------\n\n\n"
       make install
+      echo -e "\n\n\n-------------------------------------\n\n\n"
+      ldd bin/fluent-bit
+      echo -e "\n\n\n-------------------------------------\n\n\n"
+      ls -la $SNAPCRAFT_STAGE/lib
+      echo -e "\n\n\n-------------------------------------\n\n\n"
+      ls -la $SNAPCRAFT_STAGE/include
+      echo -e "\n\n\n-------------------------------------\n\n\n"
